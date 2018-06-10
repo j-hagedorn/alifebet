@@ -1,0 +1,113 @@
+---
+title: "Genome Retrieval"
+output: html_notebook
+---
+
+Access to genomic data is gained via the [`biomartr`](https://github.com/ropensci/biomartr) package.^[Drost HG, Paszkowski J. Biomartr: genomic data retrieval with R. Bioinformatics (2017) 33(8): 1216-1217. doi:10.1093/bioinformatics/btw821]
+
+```{r load_pkgs}
+# library(biomartr); 
+library(tidyverse); library(tidytext)
+```
+
+
+# Search for Available Genomes
+
+Next, we get a list of available genomes from the databases included in the package.  We can also search for organisms on the websites of the databases listed below:
+
+- db = "refseq" for retrieval from [NCBI RefSeq](https://www.ncbi.nlm.nih.gov/refseq/about/)
+- db = "genbank" for retrieval from [NCBI Genbank](http://www.ncbi.nlm.nih.gov/genbank/about/)
+- db = "ensembl" for retrieval from [ENSEMBL](http://www.ensembl.org/index.html)
+- db = "ensemblgenomes" for retrieval from [ENSEMBLGENOMES](http://ensemblgenomes.org/)
+- db = "uniprot" for retrieval from [UniProt](http://uniprot.org/)
+
+
+```{r search}
+
+is.genome.available(
+  organism = "Caenorhabditis elegans",
+  details = T,
+  db = "refseq"
+)
+
+```
+
+# Download Genome(s)
+
+```{r}
+
+# import genome as df
+c_elegans <- 
+  getGenome( 
+    db = "refseq", 
+    organism = "Caenorhabditis elegans",
+    path = file.path("_ncbi_downloads","genomes")
+  ) %>%
+  read_genome(
+    obj.type = "data.table"
+  )
+
+```
+
+```{r}
+HS.genome.refseq <- getGenome(db = "refseq", organism = "Homo sapiens")
+HS.genome.refseq <- file.path("_ncbi_downloads","genomes","Homo_sapiens_genomic_refseq.fna.gz")
+```
+
+
+```{r}
+Human_Genome <- read_genome(file = HS.genome.refseq, obj.type = "Biostrings")
+```
+
+```{r}
+library(hgu133plus2.db)
+hgu133plus2.db
+columns(hgu133plus2.db)
+keytypes(hgu133plus2.db)
+```
+
+```{r}
+# Get all keys for GO (Gene Ontology) IDs
+hgu133plus2.db %>% keys(keytype = "GO") # or "GOALL"
+hgu133plus2.db %>% keys(keytype = "PROBEID") 
+```
+
+```{r get_go, message=FALSE, warning=FALSE, paged.print=FALSE}
+vision_annotation <-
+hgu133plus2.db %>%
+  select(
+    keytype="GO", 
+    columns=c(
+      "GO","ONTOLOGY","EVIDENCE","SYMBOL","GENENAME","MAP","PATH","PROBEID"
+    ), 
+    keys="GO:0007601"
+  )
+```
+
+
+*Affymetrix Human Genome U133 Plus 2.0 Array annotation data* using the [hgu133plus2.db package](http://bioconductor.org/packages/release/data/annotation/html/hgu133plus2.db.html)
+
+```{r}
+library(hgu133plus2probe)
+head(hgu133plus2probe)
+
+```
+
+Join to annotations [using GO a.k.a. gene ontology](http://genomicsclass.github.io/book/pages/bioc1_annoOverview.html)
+
+```{r}
+genome <- hgu133plus2probe 
+```
+
+```{r}
+vision <-
+  vision_annotation %>%
+  filter(PROBEID == "206596_s_at") %>%
+  inner_join(genome, by = c("PROBEID" = "Probe.Set.Name"))
+```
+
+```{r}
+vision$sequence[1]
+vision$sequence[3]
+```
+
