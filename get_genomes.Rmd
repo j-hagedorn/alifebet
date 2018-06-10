@@ -3,74 +3,28 @@ title: "Genome Retrieval"
 output: html_notebook
 ---
 
-Access to genomic data is gained via the [`biomartr`](https://github.com/ropensci/biomartr) package.^[Drost HG, Paszkowski J. Biomartr: genomic data retrieval with R. Bioinformatics (2017) 33(8): 1216-1217. doi:10.1093/bioinformatics/btw821]
 
-```{r load_pkgs}
-# library(biomartr); 
-library(tidyverse); library(tidytext)
+
+```{r load_pkgs, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(tidyverse);library(hgu133plus2probe);library(hgu133plus2.db)
 ```
 
+# Step 1: Get Reference Genome
 
-# Search for Available Genomes
-
-Next, we get a list of available genomes from the databases included in the package.  We can also search for organisms on the websites of the databases listed below:
-
-- db = "refseq" for retrieval from [NCBI RefSeq](https://www.ncbi.nlm.nih.gov/refseq/about/)
-- db = "genbank" for retrieval from [NCBI Genbank](http://www.ncbi.nlm.nih.gov/genbank/about/)
-- db = "ensembl" for retrieval from [ENSEMBL](http://www.ensembl.org/index.html)
-- db = "ensemblgenomes" for retrieval from [ENSEMBLGENOMES](http://ensemblgenomes.org/)
-- db = "uniprot" for retrieval from [UniProt](http://uniprot.org/)
-
-
-```{r search}
-
-is.genome.available(
-  organism = "Caenorhabditis elegans",
-  details = T,
-  db = "refseq"
-)
-
-```
-
-# Download Genome(s)
+In the current code, I'm pulling the *Affymetrix Human Genome U133 Plus 2.0 Array annotation data* using the [`hgu133plus2.db` package](http://bioconductor.org/packages/release/data/annotation/html/hgu133plus2.db.html). The data looks like this, with `PROBEID`s that we'll later join to functional annotation data.
 
 ```{r}
-
-# import genome as df
-c_elegans <- 
-  getGenome( 
-    db = "refseq", 
-    organism = "Caenorhabditis elegans",
-    path = file.path("_ncbi_downloads","genomes")
-  ) %>%
-  read_genome(
-    obj.type = "data.table"
-  )
-
+head(hgu133plus2probe)
+genome <- hgu133plus2probe 
 ```
 
-```{r}
-HS.genome.refseq <- getGenome(db = "refseq", organism = "Homo sapiens")
-HS.genome.refseq <- file.path("_ncbi_downloads","genomes","Homo_sapiens_genomic_refseq.fna.gz")
-```
+# Step 2: Find Genes that Perform Functions
 
+Currently, this step is being done manually, by querying the [*AmiGo 2* database](http://amigo.geneontology.org/grebe).  Once I find a functional annotation of interest, I take the `GO ID` and 
 
-```{r}
-Human_Genome <- read_genome(file = HS.genome.refseq, obj.type = "Biostrings")
-```
+# Step 3: Subset Genome based on Genes of Interest
 
-```{r}
-library(hgu133plus2.db)
-hgu133plus2.db
-columns(hgu133plus2.db)
-keytypes(hgu133plus2.db)
-```
-
-```{r}
-# Get all keys for GO (Gene Ontology) IDs
-hgu133plus2.db %>% keys(keytype = "GO") # or "GOALL"
-hgu133plus2.db %>% keys(keytype = "PROBEID") 
-```
+For this, we use the `hgu133plus2.db` package, which allows us to query by any of the following fields: `r keytypes(hgu133plus2.db)`.  We'll be using the `GO` field.  Notes from this site on [using GO a.k.a. gene ontology](http://genomicsclass.github.io/book/pages/bioc1_annoOverview.html) for identifying functional areas is helpful, as is [this vignette on the Bioconductor site](https://www.bioconductor.org/help/course-materials/2015/UseBioconductorFeb2015/A01.5_Annotation.html)
 
 ```{r get_go, message=FALSE, warning=FALSE, paged.print=FALSE}
 vision_annotation <-
@@ -84,21 +38,7 @@ hgu133plus2.db %>%
   )
 ```
 
-
-*Affymetrix Human Genome U133 Plus 2.0 Array annotation data* using the [hgu133plus2.db package](http://bioconductor.org/packages/release/data/annotation/html/hgu133plus2.db.html)
-
-```{r}
-library(hgu133plus2probe)
-head(hgu133plus2probe)
-
-```
-
-Join to annotations [using GO a.k.a. gene ontology](http://genomicsclass.github.io/book/pages/bioc1_annoOverview.html)
-
-```{r}
-genome <- hgu133plus2probe 
-```
-
+Then we join to the probe data to obtain the nucleotide sequences which correspond to a particular gene and its related function:
 ```{r}
 vision <-
   vision_annotation %>%
