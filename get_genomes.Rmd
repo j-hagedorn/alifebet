@@ -3,10 +3,8 @@ title: "Genome Retrieval"
 output: html_notebook
 ---
 
-
-
 ```{r load_pkgs, message=FALSE, warning=FALSE, paged.print=FALSE}
-library(tidyverse);library(hgu133plus2probe);library(hgu133plus2.db)
+library(tidyverse);library(hgu133plus2probe);library(hgu133plus2.db); library(GO.db)
 ```
 
 # Step 1: Get Reference Genome
@@ -20,34 +18,104 @@ genome <- hgu133plus2probe
 
 # Step 2: Find Genes that Perform Functions
 
-Currently, this step is being done manually, by querying the [*AmiGo 2* database](http://amigo.geneontology.org/grebe).  Once I find a functional annotation of interest, I take the `GO ID` and 
+The genome is vast, and starting at random at a given nucleotide seems unnecessarily naive, especially with the incredible amount of work that has been done in annotating genes based on their functions.  This allows one to find specific sequences of nulceotides that are associated with a given biological function (*visual perception*, for instance) and to use those for relevant portions of the poem.
+
+To query to Gene Ontology (GO) database, I use the `GO.db` package^[Carlson M (2018). GO.db: A set of annotation maps describing the entire Gene Ontology. R package version 3.6.0. DOI: [10.18129/B9.bioc.GO.db](10.18129/B9.bioc.GO.db)], which queries the [*AmiGo 2* database](http://amigo.geneontology.org/grebe).  The code below defines a convenience function which takes a given search term string and returns a `tibble` with the related `GOID` and `GOTERM` fields, which can then be manually reviewed for interest. Once one or more terms are identified, these can be copied and manually added to the list in the next step which queries.
+
+```{r search_go_fun, echo=TRUE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+go_tbl <- toTable(GOTERM)[-c(1)]
+
+search_go <- function(search_string){
+  output <-
+    go_tbl %>%
+    dplyr::filter(str_detect(Term,search_string)) %>%
+    # Use line below if querying GO.db directly
+    # unlist(Term(GOTERM))[grep(pattern = search_string, x = unlist(Term(GOTERM)))] %>%
+    # dplyr::as_tibble() %>% dplyr::mutate(GOID = row.names(.)) %>% dplyr::select(GOID, GOTERM = value)
+    dplyr::select(go_id,Term,Definition,Ontology) %>%
+    dplyr::distinct()
+    
+  return(output)
+}
+
+```
+
+Then, we define search terms for various topics of interest as regular expression statements, which we can then pass to the database.
+
+```{r go_search_terms}
+vision_search <- search_go(" vision|^vision|sight| visual|^visual|ocular")
+hearing_search <- search_go("hearing| ear |^ear | auditory|^auditory")
+
+```
 
 # Step 3: Subset Genome based on Genes of Interest
 
-For this, we use the `hgu133plus2.db` package, which allows us to query by any of the following fields: `r keytypes(hgu133plus2.db)`.  We'll be using the `GO` field.  Notes from this site on [using GO a.k.a. gene ontology](http://genomicsclass.github.io/book/pages/bioc1_annoOverview.html) for identifying functional areas is helpful, as is [this vignette on the Bioconductor site](https://www.bioconductor.org/help/course-materials/2015/UseBioconductorFeb2015/A01.5_Annotation.html)
+Based on the gene ontology terms selected as a result of the search above, we pull relevant genes and annotation data from the human genome and join these to probe data which includes the actual nucleotide sequences for each gene.^[For this, we use the `hgu133plus2.db` package, which allows us to query by any of the following fields: `r keytypes(hgu133plus2.db)`.  We'll be using the `GO` field to match our `GOID`s to additional information.  Notes from this site on [using GO a.k.a. gene ontology](http://genomicsclass.github.io/book/pages/bioc1_annoOverview.html) for identifying functional areas is helpful, as is [this vignette on the Bioconductor site](https://www.bioconductor.org/help/course-materials/2015/UseBioconductorFeb2015/A01.5_Annotation.html)].  Below is a convenience function which takes a list of `GOID` strings as an argument and retrieves the related genes and functional annotation:
 
-```{r get_go, message=FALSE, warning=FALSE, paged.print=FALSE}
-vision_annotation <-
-hgu133plus2.db %>%
-  select(
-    keytype="GO", 
-    columns=c(
-      "GO","ONTOLOGY","EVIDENCE","SYMBOL","GENENAME","MAP","PATH","PROBEID"
-    ), 
-    keys="GO:0007601"
+```{r get_genes_fun, message=FALSE, warning=FALSE, paged.print=FALSE}
+get_genes <- function(go_ids){
+  
+  output <-
+    hgu133plus2.db %>%
+    select(
+      keytype = "GO", 
+      columns = c(
+        "GO","ONTOLOGY","EVIDENCE","SYMBOL","GENENAME","MAP","PATH","PROBEID"
+      ), 
+      keys = go_ids
+    ) %>%
+    mutate(
+      EVIDENCE_TYPE = recode(
+        EVIDENCE,
+        `IMP` = "inferred from mutant phenotype",
+        `IGI` = "inferred from genetic interaction",
+        `IPI` = "inferred from physical interaction",
+        `ISS` = "inferred from sequence similarity",
+        `IDA` = "inferred from direct assay",
+        `IEP` = "inferred from expression pattern",
+        `IEA` = "inferred from electronic annotation",
+        `TAS` = "traceable author statement",
+        `NAS` = "non-traceable author statement",
+        `ND` = "no biological data available",
+        `IC` = "inferred by curator"
+      )
+    ) %>%
+    inner_join(genome, by = c("PROBEID" = "Probe.Set.Name")) %>%
+    inner_join(go_tbl[c(1:2)], by = c("GO" = "go_id")) %>%
+    dplyr::select(GENENAME,SYMBOL,sequence,MAP,PATH,PROBEID,x,y,GO,GOTERM = Term,ONTOLOGY,EVIDENCE,EVIDENCE_TYPE) %>%
+    distinct() 
+  
+  return(output)
+  
+}
+```
+
+"IEA is a weak association and is based on electronic information, no human curator has examined or confirmed this association... IEA is also the most common evidence code."
+
+
+```{r get_genes, message=FALSE, warning=FALSE, paged.print=FALSE}
+# Use named lists for the purpose of documentation
+vision_genes <- 
+  get_genes(
+    go_ids = c(
+      `visual perception` = "GO:0007601", 
+      `detection of light` = "GO:0050908",
+      `visual equilibrioception` = "GO:0051356"
+    )
   )
+
+hearing_genes <-
+  get_genes(
+    go_ids = c(
+      `response to auditory stimulus` = "GO:0010996",
+      `auditory behavior` = "GO:0031223",
+      `ear morphogenesis` = "GO:0042471",
+      `ear development` = "GO:0043583",
+      `inner ear cell fate commitment` = "GO:0060120"
+    )
+  )
+
 ```
 
-Then we join to the probe data to obtain the nucleotide sequences which correspond to a particular gene and its related function:
-```{r}
-vision <-
-  vision_annotation %>%
-  filter(PROBEID == "206596_s_at") %>%
-  inner_join(genome, by = c("PROBEID" = "Probe.Set.Name"))
-```
-
-```{r}
-vision$sequence[1]
-vision$sequence[3]
-```
 
