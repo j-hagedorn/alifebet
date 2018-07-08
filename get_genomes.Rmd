@@ -1,22 +1,17 @@
 ---
 title: "Genome Retrieval"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r load_pkgs, message=FALSE, warning=FALSE, paged.print=FALSE}
-library(tidyverse);library(hgu133plus2probe);library(hgu133plus2.db); library(GO.db)
+library(tidyverse);library(DT); library(GO.db);library(tidytext)
 ```
 
-# Step 1: Get Reference Genome
+# Get Genomic Sequence Data
 
-In the current code, I'm pulling the *Affymetrix Human Genome U133 Plus 2.0 Array annotation data* using the [`hgu133plus2.db` package](http://bioconductor.org/packages/release/data/annotation/html/hgu133plus2.db.html). The data looks like this, with `PROBEID`s that we'll later join to functional annotation data.
-
-```{r}
-head(hgu133plus2probe)
-genome <- hgu133plus2probe 
-```
-
-# Step 2: Find Genes that Perform Functions
+## Step 1: Find Genes that Perform Functions
 
 The genome is vast, and starting at random at a given nucleotide seems unnecessarily naive, especially with the incredible amount of work that has been done in annotating genes based on their functions.  This allows one to find specific sequences of nulceotides that are associated with a given biological function (*visual perception*, for instance) and to use those for relevant portions of the poem.
 
@@ -46,12 +41,44 @@ Then, we define search terms for various topics of interest as regular expressio
 ```{r go_search_terms}
 vision_search <- search_go(" vision|^vision|sight| visual|^visual|ocular")
 hearing_search <- search_go("hearing| ear |^ear | auditory|^auditory")
-
+skin_search <- search_go(" skin |^skin| melanoma |^touch | touch ")
 ```
 
-# Step 3: Subset Genome based on Genes of Interest
+We can then review the resulting tables to find the genes which are of the greatest interest for a given section of the poem, like so:
 
-Based on the gene ontology terms selected as a result of the search above, we pull relevant genes and annotation data from the human genome and join these to probe data which includes the actual nucleotide sequences for each gene.^[For this, we use the `hgu133plus2.db` package, which allows us to query by any of the following fields: `r keytypes(hgu133plus2.db)`.  We'll be using the `GO` field to match our `GOID`s to additional information.  Notes from this site on [using GO a.k.a. gene ontology](http://genomicsclass.github.io/book/pages/bioc1_annoOverview.html) for identifying functional areas is helpful, as is [this vignette on the Bioconductor site](https://www.bioconductor.org/help/course-materials/2015/UseBioconductorFeb2015/A01.5_Annotation.html)].  Below is a convenience function which takes a list of `GOID` strings as an argument and retrieves the related genes and functional annotation:
+```{r dt_output, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+vision_search %>%
+  datatable(
+    rownames = F, filter = "top",
+    caption = 'Summary of Gene Ontology Terms for Search',
+    colnames = c('GO ID','GO Term','Definition','BP'),
+    extensions = c('Responsive','Buttons'),
+    options = list(
+      pageLength = 5, lengthMenu = c(5, 15),
+      dom = 'C<"clear">lfrtip', buttons = c('colvis')
+    )
+  )
+```
+
+
+## Step 2: Subset Genome based on Functions of Interest
+
+```{r}
+library(hgu133plus2probe); library(hgu133plus2.db)
+```
+
+Based on the gene ontology terms selected as a result of the search above, we pull: 
+1. Relevant genes and annotation data from the human genome.^[For this, we use the `hgu133plus2.db` package, which allows us to query by any of the following fields: `r keytypes(hgu133plus2.db)`.  We'll be using the `GO` field to match our `GOID`s to additional information.  Notes from this site on [using GO a.k.a. gene ontology](http://genomicsclass.github.io/book/pages/bioc1_annoOverview.html) for identifying functional areas is helpful, as is [this vignette on the Bioconductor site](https://www.bioconductor.org/help/course-materials/2015/UseBioconductorFeb2015/A01.5_Annotation.html)]
+
+2. Probe data which includes the actual nucleotide sequences for each gene.^[In the current code, I'm pulling the *Affymetrix Human Genome U133 Plus 2.0 Array annotation data* using the [`hgu133plus2.db` package](http://bioconductor.org/packages/release/data/annotation/html/hgu133plus2.db.html).] 
+
+```{r}
+genome <- hgu133plus2probe 
+```
+
+The data looks like this: `r head(hgu133plus2probe)`
+
+Below is a convenience function which takes a list of `GOID` strings as an argument and retrieves the related genes and functional annotation:
 
 ```{r get_genes_fun, message=FALSE, warning=FALSE, paged.print=FALSE}
 get_genes <- function(go_ids){
@@ -78,9 +105,17 @@ get_genes <- function(go_ids){
         `TAS` = "traceable author statement",
         `NAS` = "non-traceable author statement",
         `ND` = "no biological data available",
-        `IC` = "inferred by curator"
+        `IC` = "inferred by curator",
+        `IBA` = "inferred from biological aspect of ancestor"
       )
     ) %>%
+    mutate_if(
+      .predicate = is.character,
+      .funs = funs(as_factor)
+    ) %>%
+    # mutate(
+    #   EVIDENCE = fct_relevel(EVIDENCE, c())
+    # ) %>%
     inner_join(genome, by = c("PROBEID" = "Probe.Set.Name")) %>%
     inner_join(go_tbl[c(1:2)], by = c("GO" = "go_id")) %>%
     dplyr::select(GENENAME,SYMBOL,sequence,MAP,PATH,PROBEID,x,y,GO,GOTERM = Term,ONTOLOGY,EVIDENCE,EVIDENCE_TYPE) %>%
@@ -91,8 +126,7 @@ get_genes <- function(go_ids){
 }
 ```
 
-"IEA is a weak association and is based on electronic information, no human curator has examined or confirmed this association... IEA is also the most common evidence code."
-
+We can then filter the output by the strength of evidence or any other variable to select the specific gene and position that we want to use.^[Based on the GO documentation, "IEA is a weak association and is based on electronic information, no human curator has examined or confirmed this association... IEA is also the most common evidence code."]
 
 ```{r get_genes, message=FALSE, warning=FALSE, paged.print=FALSE}
 # Use named lists for the purpose of documentation
@@ -116,6 +150,179 @@ hearing_genes <-
     )
   )
 
+skin_genes <- 
+  get_genes(
+    go_ids = c(
+      `establishment of skin barrier` = "GO:0061436", 
+      `skin development` = "GO:0043588",
+      `skin morphogenesis` = "GO:0043589"
+    )
+  )
+
+```
+
+## Step 3: Select a Specific Gene 
+
+Out of all of the genes identified, we need to continue inward toward the needle in the haystack.
+
+- Filter by [evidence type](http://geneontology.org/page/guide-go-evidence-codes)
+- Determine which precise function is the best fit for the poem (e.g. for the `vision_genes`, these include `r unique(vision_genes$GOTERM)`)
+
+Based on the final selection of gene, we pass the name of the gene from the `SYMBOL` field (e.g. `"RAX"`) to a convenience function which will return the poetic patterns available based on the gene's nucleotide sequence and accompanying base pairs.
+
+
+
+```{r get_patterns}
+
+get_patterns <- function(gene_id){
+  
+  # Filter gene data based on selection
+  gene_df <-
+    hgu133plus2.db %>%
+    select(
+      keytype = "SYMBOL", 
+      columns = c(
+        "GO","ONTOLOGY","EVIDENCE","SYMBOL","GENENAME","MAP","PATH","PROBEID"
+      ), 
+      keys = gene_id
+    ) %>%
+    mutate(
+      EVIDENCE_TYPE = recode(
+        EVIDENCE,
+        `IMP` = "inferred from mutant phenotype",
+        `IGI` = "inferred from genetic interaction",
+        `IPI` = "inferred from physical interaction",
+        `ISS` = "inferred from sequence similarity",
+        `IDA` = "inferred from direct assay",
+        `IEP` = "inferred from expression pattern",
+        `IEA` = "inferred from electronic annotation",
+        `TAS` = "traceable author statement",
+        `NAS` = "non-traceable author statement",
+        `ND` = "no biological data available",
+        `IC` = "inferred by curator",
+        `IBA` = "inferred from biological aspect of ancestor"
+      )
+    ) %>%
+    mutate_if(
+      .predicate = is.character,
+      .funs = funs(as_factor)
+    ) %>%
+    # mutate(
+    #   EVIDENCE = fct_relevel(EVIDENCE, c())
+    # ) %>%
+    inner_join(genome, by = c("PROBEID" = "Probe.Set.Name")) %>%
+    inner_join(go_tbl[c(1:2)], by = c("GO" = "go_id")) %>%
+    dplyr::select(GENENAME,SYMBOL,sequence,MAP,PATH,PROBEID,x,y,GO,GOTERM = Term,ONTOLOGY,EVIDENCE,EVIDENCE_TYPE) %>%
+    distinct() %>%
+  # Arrange by position
+  arrange(x) %>%
+  dplyr::select(sequence) %>%
+  unnest_tokens(
+    nucleotide,
+    sequence,
+    token =  "character_shingles",
+    n = 1
+  ) %>%
+  # Define the other half of the base pair
+  mutate(
+    pair = recode(
+      nucleotide,
+      `a` = "t",
+      `t` = "a",
+      `c` = "g",
+      `g` = "c"
+    )
+  )
+  
+  # Define patterns
+  tercet_purines <-
+    gene_df %>%
+    mutate(
+      # Duplicate if purines
+      nucleotide = recode(nucleotide, `a` = "a|a",`g` = "g|g"),
+      pair = recode(pair, `a` = "a|a",`g` = "g|g"),
+      base_pair = paste0(nucleotide,"|",pair)
+    ) %>%
+    summarize(pattern = base::paste(base_pair,collapse = "||")) %>%
+    c()
+
+  tercet_amino <- 
+    gene_df %>%
+    mutate(
+      base_pair = paste0(nucleotide,pair)
+    ) %>%
+    summarize(pattern = base::paste(base_pair,collapse = "|")) %>%
+    # Add new | for every tercet break
+    mutate(pattern = gsub('(.{9})', '\\1|', pattern)) %>%
+    c()
+  
+  couplet_amino <-
+    gene_df %>%
+    mutate(
+      row = row_number(),
+      codon = cut(row, nrow(.) %/% 3, labels=FALSE)
+    ) %>%
+    group_by(codon) %>%
+    summarize(
+      nucleotide = base::paste(nucleotide,collapse = ""),
+      pair = base::paste(pair,collapse = "")
+    ) %>%
+    mutate(
+      pattern = base::paste0(nucleotide,"|",pair)
+    ) %>%
+    summarize(pattern = base::paste(pattern,collapse = "||")) %>%
+    c()
+  
+  patterns <- 
+    list(
+      `gene_df` = gene_df,
+      `tercet_purines` = tercet_purines,
+      `tercet_amino` = tercet_amino,
+      `couplet_amino` = couplet_amino
+    )
+  
+  return(patterns)
+  
+}
+
+
 ```
 
 
+## Step 4: Convert Gene Sequence to Poetic Pattern
+
+Once we figure out which gene we want to use, we can use its `gene_id` to convert it into patterns using the `get_patterns()` function defined above:
+
+```{r}
+vision_patterns <- get_patterns(gene_id = "RAX")
+```
+
+There are a few options to start with (and these will likely grow) for defining patterns for prosody.  In each of these, a `|` denotes a line end and a `||` denotes a stanza end:
+
+- `tercet_purines`: a pattern in which each base pair is made into a tercet, with purines (adenine `a` and guanine `g`) getting 2 lines because they have 2 rings, and pyramidines (thymine `t` and cytosine `c`) getting one line because they have 1 ring.  *Example: The base pair `at` would correspond to the tercet pattern `aat`*
+```{r}
+str(vision_patterns$tercet_purines$pattern)
+```
+
+- `tercet_amino`: a pattern in which every codon (i.e. 3 base pairs) corresponding to an amino acid gets its own tercet, where the initial nucleotide from the base pair corresponds to the start word of a line, and the other nucleotide to the end word of the line.
+```{r}
+str(vision_patterns$tercet_amino$pattern)
+```
+
+- `couplet_amino`: a pattern in which every codon (i.e. 3 base pairs) corresponding to an amino acid gets its own couplet, where the initial nucleotide from one side of the base pair gets the first line of the couplet, and the corresponding nucleotides of the base pairs get the second line of the couplet.  This creates a pattern where there are three patterned words in each line. *Similar to `tercet_amino`, but turned sideways.*
+```{r}
+str(vision_patterns$couplet_amino$pattern)
+```
+
+
+## Step 5: Fill the Pattern with Words
+
+Identify patterns of words to stand in for each nucleotide. Some options for shared characteristics include:
+
+- `letter_proportion`: above a certain proportion of their characters share a single letter
+– `vocal_proportion`: a concentration of similar vocal pattern (such as fricatives)
+– `cluster`: clustered together by similarity across multiple metrics, using *kmeans*
+– `rhyme`: rhyme based on Soundex or other algorithms
+- `category`: words from a given category (e.g. using the *Regressive Imagery Dictionary* classifications)
+– `regex`: matches a regular expression (e.g. any word beginning with `w` and containing an `o` or `u` in the middle before ending with the letter `d`).
+– Various other potential methods.
