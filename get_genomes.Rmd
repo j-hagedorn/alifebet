@@ -39,15 +39,18 @@ search_go <- function(search_string){
 Then, we define search terms for various topics of interest as regular expression statements, which we can then pass to the database.
 
 ```{r go_search_terms}
-vision_search <- search_go(" vision|^vision|sight| visual|^visual|ocular")
-hearing_search <- search_go("hearing| ear |^ear | auditory|^auditory")
-skin_search <- search_go(" skin |^skin| melanoma |^touch | touch ")
+searches <- list()
+searches$vision_search <- search_go(" vision|^vision|sight| visual|^visual|ocular")
+searches$hearing_search <- search_go("hearing| ear |^ear | auditory|^auditory")
+searches$skin_search <- search_go(" skin |^skin| melanoma |^touch | touch ")
+searches$language_search <- search_go(" language |^langauge| speech |^speech")
+searches$spine_search <- search_go(" spine |^spine")
 ```
 
 We can then review the resulting tables to find the genes which are of the greatest interest for a given section of the poem, like so:
 
 ```{r dt_output, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-vision_search %>%
+searches$vision_search %>%
   datatable(
     rownames = F, filter = "top",
     caption = 'Summary of Gene Ontology Terms for Search',
