@@ -6,3 +6,10 @@
 *nb.html
 *.pdf
 *.html
+*.zip
+Thumbs.db
+
+/public/*
+/blogdown/*
+*_cache*
+.httr-oauth
