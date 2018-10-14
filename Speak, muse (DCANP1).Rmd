@@ -1,0 +1,111 @@
+---
+title: "Speak, muse (DCANP1)"
+author: "J. Hagedorn"
+date: "October 14, 2018"
+output: 
+  pdf_document:
+    toc: true
+  md_document:
+    variant: markdown_github
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("search_go.R"); source("get_genes.R"); source("get_patterns.R"); source("get_words.R")
+```
+
+The gene is involved in *"the process that gives rise to the vestibulocochlear nerve...this sensory nerve innervates the membranous labyrinth of the inner ear... that senses head position changes relative to gravity [and] is connected to the three bony ossicles which transduce sound waves into fluid movement"*
+
+It is involved in the following:
+
+- hearing [*auditory behavior, cochlea development, cochlea morphogenesis, inner ear development, inner ear morphogenesis, vestibulocochlear nerve formation*]
+- speech [*learned vocalization behavior*]
+- balance [*neuromuscular process controlling balance, negative regulation of relaxation of muscle, regulation of muscle organ development, thorax and anterior abdomen determination, vestibulocochlear nerve formation*]
+- formation of the skull's echo chamber [*craniofacial suture morphogenesis, hard palate morphogenesis*]
+- hunger, eating [*negative regulation of saliva secretion, peristalsis, mastication, trigeminal nerve development,negative regulation of relaxation of muscle*]
+- hunger, sex [*genitalia development, genitalia morphogenesis*]
+
+Print stanza patterns...
+
+```{r get_patterns, message=FALSE, warning=FALSE, paged.print=FALSE}
+hearing_patterns <- get_patterns(gene_id = "DCANP1")
+poem_pattern <- hearing_patterns$couplet_amino$pattern
+```
+
+`r head(poem_pattern)`
+
+Select word similarity patterns...
+```{r get_atcg}
+a_words <- get_words("category", "sound")
+t_words <- get_words("regex","ight$|ide$", min_len = 3, max_len = 9) 
+c_words <- get_words("letter_proportion","vowel", prop = 0.5, min_len = 6, max_len = 10)
+g_words <- get_words("vocal_proportion","plosives", prop = 0.33, min_len = 4, max_len = 9) 
+```
+
+---
+
+# Legend
+
+*Below are the first 100 lines of the poem's pattern, labelled:*
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(magrittr)
+
+legend <- 
+  poem_pattern %>%
+  str_sub(1,100) %>%
+  str_replace_all(pattern = "|",replacement = "  \n") %>%
+  str_replace_all(pattern = "a",replacement = " a") %>%
+  str_replace_all(pattern = "t",replacement = " t") %>%
+  str_replace_all(pattern = "c",replacement = " c") %>%
+  str_replace_all(pattern = "g",replacement = " g") %>%
+  str_replace_all(pattern = " a",replacement = a_words$word_pattern) %>%
+  str_replace_all(pattern = " t",replacement = t_words$word_pattern) %>%
+  str_replace_all(pattern = " c",replacement = c_words$word_pattern) %>%
+  str_replace_all(pattern = " g",replacement = g_words$word_pattern) 
+  
+cat(legend)
+```
+
+
+---
+
+# Word options
+
+## A
+
+The pattern is: `r a_words$word_pattern`
+
+Words include:
+
+`r a_words$words$word`
+
+---
+
+## T
+
+The pattern is: `r t_words$word_pattern`
+
+Words include:
+
+`r t_words$words$word`
+
+---
+
+## C
+
+The pattern is: `r c_words$word_pattern`
+
+Words include:
+
+`r c_words$words$word`
+
+---
+
+## G
+
+The pattern is: `r g_words$word_pattern`
+
+Words include:
+
+`r g_words$words$word`
