@@ -41,7 +41,7 @@ Then, we define search terms for various topics of interest as regular expressio
 ```{r go_search_terms}
 searches <- list()
 searches$vision_search <- search_go(" vision|^vision|sight| visual|^visual|ocular")
-searches$hearing_search <- search_go("hearing| ear |^ear | auditory|^auditory")
+searches$hearing_search <- search_go("hearing | ear |^ear | auditory|^auditory|cochlea*")
 searches$skin_search <- search_go(" skin |^skin| melanoma |^touch | touch ")
 searches$language_search <- search_go(" language |^langauge| speech |^speech")
 searches$spine_search <- search_go(" spine |^spine")
@@ -50,14 +50,14 @@ searches$spine_search <- search_go(" spine |^spine")
 We can then review the resulting tables to find the genes which are of the greatest interest for a given section of the poem, like so:
 
 ```{r dt_output, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-searches$vision_search %>%
+searches$hearing_search %>%
   datatable(
     rownames = F, filter = "top",
     caption = 'Summary of Gene Ontology Terms for Search',
     colnames = c('GO ID','GO Term','Definition','BP'),
     extensions = c('Responsive','Buttons'),
     options = list(
-      pageLength = 5, lengthMenu = c(5, 15),
+      pageLength = 5, lengthMenu = c(5, 25, 50),
       dom = 'C<"clear">lfrtip', buttons = c('colvis')
     )
   )
@@ -145,11 +145,14 @@ vision_genes <-
 hearing_genes <-
   get_genes(
     go_ids = c(
+      `vestibulocochlear nerve formation` = "GO:0021650",
       `response to auditory stimulus` = "GO:0010996",
       `auditory behavior` = "GO:0031223",
       `ear morphogenesis` = "GO:0042471",
       `ear development` = "GO:0043583",
-      `inner ear cell fate commitment` = "GO:0060120"
+      `cochlear outer hair cell electromotile response` = "GO:0099129",
+      `inner ear sensory epithelium regeneration` = "GO:0070659",
+      `inner ear receptor cell differentiation involved in inner ear sensory epithelium regeneration` = "GO:0070660"
     )
   )
 
@@ -159,6 +162,15 @@ skin_genes <-
       `establishment of skin barrier` = "GO:0061436", 
       `skin development` = "GO:0043588",
       `skin morphogenesis` = "GO:0043589"
+    )
+  )
+
+fate_genes <-
+  get_genes(
+    go_ids = c(
+      `` = "", 
+      `` = "",
+      `` = ""
     )
   )
 
