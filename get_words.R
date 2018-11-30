@@ -27,7 +27,9 @@ get_words <- function(
   } else if (similarity == "rhyme"){
     return_words <- c("Non-functional argument")
   } else if (similarity == "category"){
-    return_words <- c("Non-functional argument")
+    return_words <- df %>%
+      fuzzyjoin::regex_inner_join(rid %>% filter(level_3 == seed_with), by = c("word" = "regex_word")) %>% 
+      mutate(word = as.character(word.x)) %>% dplyr::select(word) %>% c()
   }
   
   word_pattern <- paste0(similarity,"_",seed_with,"_",prop)
