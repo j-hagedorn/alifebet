@@ -36,8 +36,9 @@ poem_pattern <- hearing_patterns$couplet_amino$pattern
 
 Select word similarity patterns...
 ```{r get_atcg}
-a_words <- get_words("category", "sound")
+a_words <- get_words("category", "sound", min_len = 4, max_len = 6)
 t_words <- get_words("regex","^[aeiou](\\w|\\s)*[aiou]$", min_len = 4, max_len = 6) 
+t_words <- get_words("regex","^[aeiou]([b-df-hj-np-tv-z])*[aiou]$", min_len = 4, max_len = 6)
 c_words <- get_words("letter_proportion","vowel", prop = 0.5, min_len = 6, max_len = 10)
 g_words <- get_words("vocal_proportion","plosives", prop = 0.33, min_len = 4, max_len = 9) 
 ```
