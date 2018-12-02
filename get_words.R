@@ -10,6 +10,7 @@ get_words <- function(
   # `letter_proportion` = letter, `vocal_proportion` = fricatives, etc., `cluster` = word to match, etc.
   seed_with,
   prop = NULL,
+  pattern_alias = NULL, # if your regex is too long...
   min_len = 1,
   max_len = 20
 ){
@@ -32,7 +33,11 @@ get_words <- function(
       mutate(word = as.character(word.x)) %>% dplyr::select(word) %>% c()
   }
   
-  word_pattern <- paste0(similarity,"_",seed_with,"_",prop)
+  word_pattern <- 
+    if(is.null(pattern_alias)){
+      paste0(similarity,"_",seed_with,"_",prop)
+    } else {pattern_alias}
+  
   return_list <- list(word_pattern = word_pattern, words = return_words)
   return(return_list)
 }
