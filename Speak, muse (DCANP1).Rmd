@@ -36,7 +36,7 @@ poem_pattern <- hearing_patterns$couplet_amino$pattern
 
 Select word similarity patterns...
 ```{r get_atcg}
-a_words <- get_words("category", "sound", min_len = 4, max_len = 6)
+a_words <- get_words("category", "sound", min_len = 4, max_len = 8)
 t_words <- get_words(
   "regex",
   # Words with consonants as first and last letter, with only vowels inbetween (or vice-versa)
