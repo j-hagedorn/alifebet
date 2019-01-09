@@ -45,7 +45,12 @@ t_words <- get_words(
   min_len = 3, max_len = 9
 ) 
 c_words <- get_words("letter_proportion","vowel", prop = 0.66, min_len = 6, max_len = 10)
-g_words <- get_words("vocal_proportion","plosives", prop = 0.33, min_len = 4, max_len = 9) 
+g_words <- get_words(
+  "regex",
+  "^(^(?!un|dis|mis|over|non|up.*$).*)(ound$|owned$|ount$|oud$|owed$|ond$|ouns$|oned$|oaned$).*$",
+  pattern_alias = "sound_rhyme",
+  min_len = 5, max_len = 9
+) 
 ```
 
 ---
