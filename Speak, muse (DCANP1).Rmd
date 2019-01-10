@@ -36,20 +36,31 @@ poem_pattern <- hearing_patterns$couplet_amino$pattern
 
 Select word similarity patterns...
 ```{r get_atcg}
-a_words <- get_words("category", "sound", min_len = 4, max_len = 8)
+a_words <- get_words(
+  "regex",
+  # Words with vowels as first and last letter, with only consonants inbetween 
+  "^[aeiou]([b-df-hj-np-tv-z])*[aiouy]$",
+  pattern_alias = "central_consonant",
+  min_len = 3, max_len = 9
+) 
 t_words <- get_words(
   "regex",
-  # Words with consonants as first and last letter, with only vowels inbetween (or vice-versa)
-  "^[b-df-hj-np-tv-z]([aeiou])*[b-df-hj-np-tv-z]$|^[aeiou]([b-df-hj-np-tv-z])*[aiouy]$",
+  # Words with consonants as first and last letter, with only vowels inbetween 
+  "^[b-df-hj-np-tv-z]([aeiou])*[b-df-hj-np-tv-z]$",
   pattern_alias = "vowel_vessel",
   min_len = 3, max_len = 9
 ) 
-c_words <- get_words("letter_proportion","vowel", prop = 0.66, min_len = 6, max_len = 10)
+c_words <- get_words(
+  "regex",
+  "^(^(?!un|dis|mis|over|non|up.*$).*)(ome$|omb$|one$|oam$).*$",
+  pattern_alias = "ome_rhyme",
+  min_len = 4, max_len = 9
+) 
 g_words <- get_words(
   "regex",
-  "^(^(?!un|dis|mis|over|non|up.*$).*)(ound$|owned$|ount$|oud$|owed$|ond$|ouns$|oned$|oaned$).*$",
-  pattern_alias = "sound_rhyme",
-  min_len = 5, max_len = 9
+  "^(^(?!un|dis|mis|over|non|up.*$).*)(ound$|owned$|ount$|oud$|owed$|ond$|oun$|oned$|oaned$).*$",
+  pattern_alias = "ound_rhyme",
+  min_len = 4, max_len = 9
 ) 
 ```
 
