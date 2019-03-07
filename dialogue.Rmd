@@ -14,7 +14,7 @@ source("search_go.R"); source("get_genes.R"); source("get_patterns.R"); source("
 ```
 
 ```{r}
-dialogue_genes <-
+searches$dialogue_genes <-
   get_genes(
     go_ids = c(
       `cell communication` = "GO:0007154",
