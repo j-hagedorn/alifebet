@@ -1,0 +1,141 @@
+---
+title: "Dialogue"
+author: "J. Hagedorn"
+output: 
+  md_document:
+    variant: markdown_github
+  pdf_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("search_go.R"); source("get_genes.R"); source("get_patterns.R"); source("get_words.R")
+```
+
+```{r}
+dialogue_genes <-
+  get_genes(
+    go_ids = c(
+      `cell communication` = "GO:0007154",
+      `cell communication by chemical coupling` = "GO:0010643",
+      `cell communication by electrical coupling` = "GO:0010644",
+      `positive regulation of cell communication` = "GO:0010647",
+      `SA node cell-atrial cardiac muscle cell adhesion involved in cell communication` = "GO:0086022",
+      `Purkinje myocyte to ventricular cardiac muscle cell communication` = "GO:0086068"
+    )
+  )
+```
+
+GJD3: Gap junction delta-3 protein; One gap junction consists of a cluster of closely packed pairs of transmembrane channels, the connexons, through which materials of low MW diffuse from one cell to a neighboring cell.
+ 
+ANG: Angiogenin is a key protein implicated in angiogenesis (physiological process through which new blood vessels form from pre-existing vessels) in normal and tumor growth
+
+Print stanza patterns...
+
+```{r get_patterns, message=FALSE, warning=FALSE, paged.print=FALSE}
+skin_patterns <- get_patterns(gene_id = "GJD3")
+poem_pattern <- skin_patterns$tercet_amino$pattern
+```
+
+`r head(poem_pattern)`
+
+Select word similarity patterns...
+```{r get_atcg}
+
+a_words <- get_words(
+  "regex",
+  "^(^(?!un|dis|mis|over|non|up.*$).*)(ough$|to$|ew$|oo$|ue$).*$",
+  pattern_alias = "through_rhyme",
+  min_len = 3, max_len = 9, is_common = F
+)
+t_words <- get_words(
+  "regex",
+  # Words with same start and end letter
+  "^([a-z]).*\\1$",
+  pattern_alias = "circle",
+  min_len = 5, max_len = 11, is_common = T #, stem = T
+)
+c_words <- get_words(
+  "regex",
+  "^(^(?!un|dis|mis|over|non|up.*$).*)(nst$|ends$|ens$|end$|en$).*$",
+  pattern_alias = "against_rhyme",
+  min_len = 3, max_len = 9, is_common = T
+)
+g_words <- get_words(
+  "regex",
+  # Words with only one kind of vowel 
+  "(^((?![eiouy]).)*$|^((?![aiouy]).)*$|^((?![aeouy]).)*$|^((?![aeiuy]).)*$|^((?![aeioy]).)*$|^((?![aeiou]).)*$)",
+  pattern_alias = "single_vowel",
+  min_len = 5, max_len = 11, is_common = T #, stem = T
+)
+
+```
+
+---
+
+# Legend
+
+*Below are the first 100 lines of the poem's pattern, labelled:*
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(magrittr)
+
+legend <- 
+  poem_pattern %>%
+  str_sub(1,100) %>%
+  str_replace_all(pattern = "|",replacement = "  \n") %>%
+  str_replace_all(pattern = "a",replacement = " a") %>%
+  str_replace_all(pattern = "t",replacement = " t") %>%
+  str_replace_all(pattern = "c",replacement = " c") %>%
+  str_replace_all(pattern = "g",replacement = " g") %>%
+  str_replace_all(pattern = " a",replacement = a_words$word_pattern) %>%
+  str_replace_all(pattern = " t",replacement = t_words$word_pattern) %>%
+  str_replace_all(pattern = " c",replacement = c_words$word_pattern) %>%
+  str_replace_all(pattern = " g",replacement = g_words$word_pattern) 
+  
+cat(legend)
+```
+
+
+---
+
+# Word options
+
+## A
+
+The pattern is: `r a_words$word_pattern`
+
+Words include:
+
+`r a_words$words$word`
+
+---
+
+## T
+
+The pattern is: `r t_words$word_pattern`
+
+Words include:
+
+`r t_words$words$word`
+
+---
+
+## C
+
+The pattern is: `r c_words$word_pattern`
+
+Words include:
+
+`r c_words$words$word`
+
+---
+
+## G
+
+The pattern is: `r g_words$word_pattern`
+
+Words include:
+
+`r g_words$words$word`
