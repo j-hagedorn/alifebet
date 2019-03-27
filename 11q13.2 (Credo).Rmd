@@ -43,31 +43,27 @@ poem_pattern <- balance_patterns$tercet_purines$pattern
 `r head(poem_pattern)`
 
 Select word similarity patterns...
-```{r get_atcg}
+```{r get_atcg, message=FALSE, warning=FALSE}
 
 a_words <- get_words(
-  "regex",
-  "^(^(?!un|dis|mis|over|non|up.*$).*)(lance$|lence$|lents$|lants$).*$",
-  pattern_alias = "ance_rhyme",
-  min_len = 4, max_len = 9 #, is_common = T
+  "rhyme",
+  c("balance","rinse","mints","tents"),
+  pattern_alias = "ance_rhyme"
 )
 t_words <- get_words(
-  "regex",
-  "^(^(?!un|dis|mis|over|non|up.*$).*)(^bal|^vow|^bow).*$",
-  pattern_alias = "start_bal",
-  min_len = 4, max_len = 9 #, is_common = T
+  "rhyme",
+  c("bow","al"),
+  pattern_alias = "bal_rhyme"
 )
 c_words <- get_words(
-  "regex",
-  "^(^(?!un|dis|mis|over|non|up.*$).*)(^be|^ve|^fe).*$",
-  pattern_alias = "start_be",
-  min_len = 4, max_len = 9 #, is_common = T
+  "rhyme",
+  c("be","bee"),
+  pattern_alias = "be_rhyme"
 )
 g_words <- get_words(
-  "regex",
-  "^(^(?!un|dis|mis|over|non|up.*$).*)(eve$|eive$|eave$).*$",
-  pattern_alias = "eve_rhyme",
-  min_len = 4, max_len = 9 #, is_common = T
+  "rhyme",
+  c("believe","leave"),
+  pattern_alias = "eve_rhyme"
 )
 
 
@@ -109,7 +105,7 @@ The pattern is: `r a_words$word_pattern`
 
 Words include:
 
-`r a_words$words$word`
+`r a_words$words`
 
 ---
 
@@ -119,7 +115,7 @@ The pattern is: `r t_words$word_pattern`
 
 Words include:
 
-`r t_words$words$word`
+`r t_words$words`
 
 ---
 
@@ -129,7 +125,7 @@ The pattern is: `r c_words$word_pattern`
 
 Words include:
 
-`r c_words$words$word`
+`r c_words$words`
 
 ---
 
@@ -139,4 +135,4 @@ The pattern is: `r g_words$word_pattern`
 
 Words include:
 
-`r g_words$words$word`
+`r g_words$words`
