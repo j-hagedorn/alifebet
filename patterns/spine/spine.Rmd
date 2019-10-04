@@ -3,7 +3,7 @@ title: "Spine"
 author: "J. Hagedorn"
 output: 
   md_document:
-    variant: markdown_github
+    variant: gfm
   pdf_document:
     toc: true
 ---
@@ -42,24 +42,24 @@ Select word similarity patterns...
 ```{r get_atcg}
 
 a_words <- get_words(
-  "vocal_proportion", "closure", 
-  pattern_alias = "closed",
-  prop = 0.33, min_len = 4, max_len = 9, is_common = T
+  "letter_proportion", "vowel", 
+  pattern_alias = "vowelicious",
+  prop = 0.6, min_len = 4, max_len = 9 #, is_common = T
 )
 t_words <- get_words(
-  "vocal_proportion", "plosives", 
-  pattern_alias = "plosives",
-  prop = 0.33, min_len = 4, max_len = 9, is_common = T
+  "letter_proportion", "consonant", 
+  pattern_alias = "consonants",
+  prop = 0.8, min_len = 5, max_len = 9, is_common = T
 )
 c_words <- get_words(
   "vocal_proportion", "frictionless", 
   pattern_alias = "frictionless",
-  prop = 0.33, min_len = 4, max_len = 9, is_common = T
+  prop = 0.25, min_len = 4, max_len = 9#, is_common = T
 )
 g_words <- get_words(
-  "vocal_proportion", "liquids", 
-  pattern_alias = "liquids",
-  prop = 0.33, min_len = 4, max_len = 9, is_common = T
+  "vocal_proportion", "fricatives", 
+  pattern_alias = "fricative",
+  prop = 0.4, min_len = 4, max_len = 9, #is_common = T
 )
 
 ```
