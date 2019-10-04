@@ -1,0 +1,138 @@
+---
+title: "11q13.2 (Credo)"
+author: "J. Hagedorn"
+output: 
+  md_document:
+    variant: markdown_github
+  pdf_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("search_go.R"); source("get_genes.R"); source("get_patterns.R"); source("get_words.R")
+```
+
+```{r}
+balance_genes <-
+  get_genes(
+    go_ids = c(
+      `neuromuscular process controlling balance` = "GO:0050885",
+      `cadherin binding` = "GO:0045296"
+    )
+  )
+```
+
+PAFAH1B1: platelet activating factor acetylhydrolase 1b regulatory subunit 1; provides instructions for making a protein that is one part (subunit) of a complex called platelet activating factor acetyl hydrolase 1B (PAFAH1B). thought to be involved in directing the movement (migration) of nerve cells (neurons), a process known as neuronal migration. also likely involved in the organization of the cell's structural framework (the cytoskeleton). 
+
+CLN3: The CLN3 gene provides instructions for making a protein called battenin. This protein is primarily located in compartments within the cell that digest and recycle materials. The protein can also be found in a cell structure that modifies newly produced enzymes and other proteins. Studies have associated battenin with many cellular processes, including recycling of worn-out cell parts and unneeded proteins (autophagy), maintenance of the relative acidity (pH) of lysosomes, the movement of molecules from the cell surface into the cell (endocytosis), transportation (trafficking) of proteins to where they are needed in the cell, self-destruction of cells (apoptosis), cell growth and division (proliferation), and maintenance of the body's water balance (osmoregulation). 
+
+SPTBN2: The protein encoded by this gene (SPTBN2), is called spectrin beta non-erythrocytic 2 or beta-III spectrin. SPTBN2 regulates the glutamate signaling pathway by stabilizing the glutamate transporter EAAT4 at the surface of the plasma membrane. Mutations in this gene cause a form of spinocerebellar ataxia, SCA5, that is characterized by neurodegeneration, progressive locomotor incoordination, dysarthria, and uncoordinated eye movements. https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1003074
+
+Heritability of trust and distrust remains unknown https://www.pnas.org/content/115/10/E2149
+
+Genetic Influences Are Virtually Absent for Trust https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3977931/
+
+Print stanza patterns...
+
+```{r get_patterns, message=FALSE, warning=FALSE, paged.print=FALSE}
+balance_patterns <- get_patterns(gene_id = "SPTBN2")
+poem_pattern <- balance_patterns$tercet_purines$pattern
+```
+
+`r head(poem_pattern)`
+
+Select word similarity patterns...
+```{r get_atcg, message=FALSE, warning=FALSE}
+
+a_words <- get_words(
+  "rhyme",
+  c("balance","rinse","mints","tents"),
+  pattern_alias = "ance_rhyme"
+)
+t_words <- get_words(
+  "rhyme",
+  c("bow","al"),
+  pattern_alias = "bal_rhyme"
+)
+c_words <- get_words(
+  "rhyme",
+  c("be","bee"),
+  pattern_alias = "be_rhyme"
+)
+g_words <- get_words(
+  "rhyme",
+  c("believe","leave"),
+  pattern_alias = "eve_rhyme"
+)
+
+
+```
+
+---
+
+# Legend
+
+*Below are the first 100 lines of the poem's pattern, labelled:*
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(magrittr)
+
+legend <- 
+  poem_pattern %>%
+  str_sub(1,100) %>%
+  str_replace_all(pattern = "|",replacement = "  \n") %>%
+  str_replace_all(pattern = "a",replacement = " a") %>%
+  str_replace_all(pattern = "t",replacement = " t") %>%
+  str_replace_all(pattern = "c",replacement = " c") %>%
+  str_replace_all(pattern = "g",replacement = " g") %>%
+  str_replace_all(pattern = " a",replacement = a_words$word_pattern) %>%
+  str_replace_all(pattern = " t",replacement = t_words$word_pattern) %>%
+  str_replace_all(pattern = " c",replacement = c_words$word_pattern) %>%
+  str_replace_all(pattern = " g",replacement = g_words$word_pattern) 
+  
+cat(legend)
+```
+
+
+---
+
+# Word options
+
+## A
+
+The pattern is: `r a_words$word_pattern`
+
+Words include:
+
+`r a_words$words`
+
+---
+
+## T
+
+The pattern is: `r t_words$word_pattern`
+
+Words include:
+
+`r t_words$words`
+
+---
+
+## C
+
+The pattern is: `r c_words$word_pattern`
+
+Words include:
+
+`r c_words$words`
+
+---
+
+## G
+
+The pattern is: `r g_words$word_pattern`
+
+Words include:
+
+`r g_words$words`

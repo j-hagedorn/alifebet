@@ -11,6 +11,8 @@ lexicon %<>% left_join(common, by = c("word" = "value")) %>% mutate(common = com
 
 rid <- feather::read_feather("C:/Users/JoshH.TBDSAD/Documents/GitHub/amanuensis/rid.feather")
 
+source("get_all_rhymes.R")
+
 get_words <- function(
   similarity = c("letter_proportion","vocal_proportion","cluster","rhyme","category","regex"),
   # The seed is different for different patterns: 
@@ -37,7 +39,7 @@ get_words <- function(
   } else if (similarity == "regex"){
     return_words <- df %>% filter(str_detect(word,seed_with) == T) %>% droplevels() %>% dplyr::select(word) %>% c()
   } else if (similarity == "rhyme"){
-    return_words <- c("Non-functional argument")
+    return_words <- get_all_rhymes(word_vars = seed_with)
   } else if (similarity == "category"){
     return_words <- df %>%
       fuzzyjoin::regex_inner_join(rid %>% filter(level_3 == seed_with), by = c("word" = "regex_word")) %>% 
