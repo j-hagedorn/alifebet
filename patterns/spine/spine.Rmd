@@ -1,0 +1,133 @@
+---
+title: "Spine"
+author: "J. Hagedorn"
+output: 
+  md_document:
+    variant: gfm
+  pdf_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("../../funs/search_go.R"); source("../../funs/get_genes.R"); 
+source("../../funs/get_patterns.R"); source("../../funs/get_words.R")
+```
+
+```{r}
+searches <- list()
+searches$spine_genes <-
+  get_genes(
+    go_ids = c(
+      `spinal cord patterning` = "GO:0021511",
+      `spinal cord development` = "GO:0021510",
+      `spinal cord anterior/posterior patterning` = "GO:0021512",
+      `spinal cord dorsal/ventral patterning` = "GO:0021513"
+    )
+  )
+```
+
+SHH: The sonic hedgehog (SHH) signaling molecule assumes various roles in patterning the central nervous system (CNS) during vertebrate development. One of the most characterized functions of SHH is its role in the induction of the floor plate and diverse ventral cell types within the neural tube.[32] The notochord, a structure derived from the axial mesoderm, produces SHH, which travels extracellularly to the ventral region of the neural tube and instructs those cells to form the floor plate.[33] Another view for floor plate induction hypothesizes that some precursor cells located in the notochord are inserted into the neural plate before its formation, later giving rise to the floor plate.  Sonic hedgehog is secreted at the zone of polarizing activity, which is located on the posterior side of a limb bud in an embryo.
+
+Print stanza patterns...
+
+```{r get_patterns, message=FALSE, warning=FALSE, paged.print=FALSE}
+spine_patterns <- get_patterns(gene_id = "SHH")
+poem_pattern <- spine_patterns$couplet_pair$pattern
+```
+
+`r head(poem_pattern)`
+
+Select word similarity patterns...
+```{r get_atcg}
+
+a_words <- get_words(
+  "letter_proportion", "vowel", 
+  pattern_alias = "vowelicious",
+  prop = 0.6, min_len = 4, max_len = 9 #, is_common = T
+)
+t_words <- get_words(
+  "letter_proportion", "consonant", 
+  pattern_alias = "consonants",
+  prop = 0.8, min_len = 5, max_len = 9, is_common = T
+)
+c_words <- get_words(
+  "vocal_proportion", "frictionless", 
+  pattern_alias = "frictionless",
+  prop = 0.25, min_len = 4, max_len = 9#, is_common = T
+)
+g_words <- get_words(
+  "vocal_proportion", "fricatives", 
+  pattern_alias = "fricative",
+  prop = 0.4, min_len = 4, max_len = 9, #is_common = T
+)
+
+```
+
+---
+
+# Legend
+
+*Below are the first 100 lines of the poem's pattern, labelled:*
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(magrittr)
+
+legend <- 
+  poem_pattern %>%
+  str_sub(1,100) %>%
+  str_replace_all(pattern = "|",replacement = "  \n") %>%
+  str_replace_all(pattern = "a",replacement = " a") %>%
+  str_replace_all(pattern = "t",replacement = " t") %>%
+  str_replace_all(pattern = "c",replacement = " c") %>%
+  str_replace_all(pattern = "g",replacement = " g") %>%
+  str_replace_all(pattern = " a",replacement = a_words$word_pattern) %>%
+  str_replace_all(pattern = " t",replacement = t_words$word_pattern) %>%
+  str_replace_all(pattern = " c",replacement = c_words$word_pattern) %>%
+  str_replace_all(pattern = " g",replacement = g_words$word_pattern) 
+  
+cat(legend)
+```
+
+
+---
+
+# Word options
+
+## A
+
+The pattern is: `r a_words$word_pattern`
+
+Words include:
+
+`r a_words$words$word`
+
+---
+
+## T
+
+The pattern is: `r t_words$word_pattern`
+
+Words include:
+
+`r t_words$words$word`
+
+---
+
+## C
+
+The pattern is: `r c_words$word_pattern`
+
+Words include:
+
+`r c_words$words$word`
+
+---
+
+## G
+
+The pattern is: `r g_words$word_pattern`
+
+Words include:
+
+`r g_words$words$word`

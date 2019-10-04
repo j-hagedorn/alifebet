@@ -1,7 +1,7 @@
 
 library(tidyverse); library(magrittr); library(hunspell)
 
-lexicon <- feather::read_feather("C:/Users/JoshH.TBDSAD/Documents/GitHub/amanuensis/lexicon.feather")
+lexicon <- feather::read_feather("C:/Users/joshh/Documents/GitHub/amanuensis/lexicon.feather")
 common <- 
   readLines("https://raw.githubusercontent.com/first20hours/google-10000-english/master/google-10000-english-no-swears.txt") %>%
   as_tibble() %>% mutate(common = T) 
@@ -11,7 +11,7 @@ lexicon %<>% left_join(common, by = c("word" = "value")) %>% mutate(common = com
 
 rid <- feather::read_feather("C:/Users/JoshH.TBDSAD/Documents/GitHub/amanuensis/rid.feather")
 
-source("get_all_rhymes.R")
+source("../../funs/get_all_rhymes.R")
 
 get_words <- function(
   similarity = c("letter_proportion","vocal_proportion","cluster","rhyme","category","regex"),

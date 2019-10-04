@@ -100,12 +100,23 @@ get_patterns <- function(gene_id){
     summarize(pattern = base::paste(pattern,collapse = "||")) %>%
     c()
   
+  couplet_pair <-
+    gene_df %>%
+    mutate(
+      base_pair = paste0(nucleotide,pair)
+    ) %>%
+    summarize(pattern = base::paste(base_pair,collapse = "|")) %>%
+    # Add new | for every couplet break
+    # mutate(pattern = gsub('(.{2})', '\\1|', pattern)) %>%
+    c()
+  
   patterns <- 
     list(
       `gene_df` = gene_df,
       `tercet_purines` = tercet_purines,
       `tercet_amino` = tercet_amino,
-      `couplet_amino` = couplet_amino
+      `couplet_amino` = couplet_amino,
+      `couplet_pair` = couplet_pair
     )
   
   return(patterns)
