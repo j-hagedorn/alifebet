@@ -10,10 +10,12 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-source("search_go.R"); source("get_genes.R"); source("get_patterns.R"); source("get_words.R")
+source("../../funs/search_go.R"); source("../../funs/get_genes.R"); 
+source("../../funs/get_patterns.R"); source("../../funs/get_words.R")
 ```
 
 ```{r}
+searches <- list()
 searches$spine_genes <-
   get_genes(
     go_ids = c(

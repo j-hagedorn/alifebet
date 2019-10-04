@@ -11,7 +11,7 @@ lexicon %<>% left_join(common, by = c("word" = "value")) %>% mutate(common = com
 
 rid <- feather::read_feather("C:/Users/JoshH.TBDSAD/Documents/GitHub/amanuensis/rid.feather")
 
-source("get_all_rhymes.R")
+source("funs/get_all_rhymes.R")
 
 get_words <- function(
   similarity = c("letter_proportion","vocal_proportion","cluster","rhyme","category","regex"),
