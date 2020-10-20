@@ -1,0 +1,138 @@
+---
+title: "Breath"
+author: "J. Hagedorn"
+output: 
+  md_document:
+    variant: gfm
+  pdf_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("../../funs/search_go.R"); source("../../funs/get_genes.R"); 
+source("../../funs/get_patterns.R"); source("../../funs/get_words.R")
+```
+
+```{r}
+searches <- list()
+
+searches$breath_genes <-
+  get_genes(
+    go_ids = c(
+      `neurological control of breathing` = "GO:0002087",
+      `respiratory gaseous exchange` = "GO:0007585",
+      `lung development` = "GO:0030324",
+      `lung growth` = "GO:0060437"
+    )
+  )
+```
+
+
+Teashirt homolog 3 (TSHZ3)
+Transcriptional regulator involved in developmental processes. Functions in association with APBB1, SET and HDAC factors as a transcriptional repressor, that inhibits the expression of CASP4. TSHZ3-mediated transcription repression involves the recruitment of histone deacetylases HDAC1 and HDAC2. Associates with chromatin in a region surrounding the CASP4 transcriptional start site(s) (PubMed:19343227). Regulates the development of neurons involved in both respiratory rhythm and airflow control. Promotes maintenance of nucleus ambiguus (nA) motoneurons, which govern upper airway function, and establishes a respiratory rhythm generator (RRG) activity compatible with survival at birth. Involved in the differentiation of the proximal uretic smooth muscle cells during developmental processes. Involved in the up-regulation of myocardin, that directs the expression of smooth muscle cells in the proximal ureter (By similarity). Involved in the modulation of glutamatergic synaptic transmission and long-term synaptic potentiation (By similarity)
+
+TSHZ3 haploinsufficiency due to proximal chromosome 19q13.11 deletions causes a neurodevelopmental disorder characterized by developmental delay, absent or delayed speech, intellectual disability, and autistic features. Some patients may have reanal tract abnormalities.  Expressed in brain; strongly reduced in post-mortem elderly subjects with Alzheimer disease (PubMed:18776146, PubMed:19343227). Expressed in the fetal neocortex (PubMed:27668656).
+
+Print stanza patterns...
+
+```{r get_patterns, message=FALSE, warning=FALSE, paged.print=FALSE}
+breath_patterns <- get_patterns(gene_id = "TSHZ3")
+poem_pattern <- spine_patterns$couplet_pair$pattern
+```
+
+`r head(poem_pattern)`
+
+Select word similarity patterns...
+```{r get_atcg}
+
+a_words <- get_words(
+  "letter_proportion", "i", 
+  pattern_alias = "i",
+  prop = 0.2, min_len = 4, max_len = 9 #, is_common = T
+)
+t_words <- get_words(
+  "letter_proportion", "o", 
+  pattern_alias = "consonants",
+  prop = 0.3, min_len = 5, max_len = 9 #, is_common = T
+)
+c_words <- get_words(
+  "vocal_proportion", "frictionless", 
+  pattern_alias = "frictionless",
+  prop = 0.25, min_len = 4, max_len = 9#, is_common = T
+)
+g_words <- get_words(
+  "vocal_proportion", "fricatives", 
+  pattern_alias = "fricative",
+  prop = 0.4, min_len = 4, max_len = 9, #is_common = T
+)
+
+```
+
+---
+
+# Legend
+
+*Below are the first 100 lines of the poem's pattern, labelled:*
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(magrittr)
+
+legend <- 
+  poem_pattern %>%
+  str_sub(1,100) %>%
+  str_replace_all(pattern = "|",replacement = "  \n") %>%
+  str_replace_all(pattern = "a",replacement = " a") %>%
+  str_replace_all(pattern = "t",replacement = " t") %>%
+  str_replace_all(pattern = "c",replacement = " c") %>%
+  str_replace_all(pattern = "g",replacement = " g") %>%
+  str_replace_all(pattern = " a",replacement = a_words$word_pattern) %>%
+  str_replace_all(pattern = " t",replacement = t_words$word_pattern) %>%
+  str_replace_all(pattern = " c",replacement = c_words$word_pattern) %>%
+  str_replace_all(pattern = " g",replacement = g_words$word_pattern) 
+  
+cat(legend)
+```
+
+
+---
+
+# Word options
+
+## A
+
+The pattern is: `r a_words$word_pattern`
+
+Words include:
+
+`r a_words$words$word`
+
+---
+
+## T
+
+The pattern is: `r t_words$word_pattern`
+
+Words include:
+
+`r t_words$words$word`
+
+---
+
+## C
+
+The pattern is: `r c_words$word_pattern`
+
+Words include:
+
+`r c_words$words$word`
+
+---
+
+## G
+
+The pattern is: `r g_words$word_pattern`
+
+Words include:
+
+`r g_words$words$word`
