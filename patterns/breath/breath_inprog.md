@@ -1,13 +1,9 @@
 ``` r
 searches <- list()
-
 searches$breath_genes <-
   get_genes(
     go_ids = c(
-      `neurological control of breathing` = "GO:0002087",
-      `respiratory gaseous exchange` = "GO:0007585",
-      `lung development` = "GO:0030324",
-      `lung growth` = "GO:0060437"
+      `neurological control of breathing` = "GO:0002087"
     )
   )
 ```
@@ -54,144 +50,11 @@ cg|ta|gc|gc|cg|at|ta|ta|ta|cg|ta|gc|at|gc|at|cg|ta|cg|gc|at
 
 Select word similarity patterns…
 
-``` r
-a_words <- get_words(
-  "letter_proportion", "i", 
-  pattern_alias = "i",
-  prop = 0.2, min_len = 4, max_len = 9 #, is_common = T
-)
-```
-``` r
-t_words <- get_words(
-  "letter_proportion", "e", 
-  pattern_alias = "e",
-  prop = 0.25, min_len = 5, max_len = 9 #, is_common = T
-)
-c_words <- get_words(
-  "letter_proportion", "o", 
-  pattern_alias = "o",
-  prop = 0.2, min_len = 5, max_len = 9 #, is_common = T
-)
-g_words <- get_words(
-  "letter_proportion", "u", 
-  pattern_alias = "u",
-  prop = 0.2, min_len = 5, max_len = 9 #, is_common = T
-)
-```
-
------
-
-# Legend
-
-*Below are the first 100 lines of the poem’s pattern, labelled:*
-
-    ##   
-    ## u  
-    ## o  
-    ## |  
-    ## i  
-    ## e  
-    ## |  
-    ## u  
-    ## o  
-    ## |  
-    ## i  
-    ## e  
-    ## |  
-    ## o  
-    ## u  
-    ## |  
-    ## e  
-    ## i  
-    ## |  
-    ## o  
-    ## u  
-    ## |  
-    ## u  
-    ## o  
-    ## |  
-    ## i  
-    ## e  
-    ## |  
-    ## u  
-    ## o  
-    ## |  
-    ## e  
-    ## i  
-    ## |  
-    ## u  
-    ## o  
-    ## |  
-    ## e  
-    ## i  
-    ## |  
-    ## u  
-    ## o  
-    ## |  
-    ## o  
-    ## u  
-    ## |  
-    ## e  
-    ## i  
-    ## |  
-    ## u  
-    ## o  
-    ## |  
-    ## u  
-    ## o  
-    ## |  
-    ## o  
-    ## u  
-    ## |  
-    ## i  
-    ## e  
-    ## |  
-    ## e  
-    ## i  
-    ## |  
-    ## e  
-    ## i  
-    ## |  
-    ## e  
-    ## i  
-    ## |  
-    ## o  
-    ## u  
-    ## |  
-    ## e  
-    ## i  
-    ## |  
-    ## u  
-    ## o  
-    ## |  
-    ## i  
-    ## e  
-    ## |  
-    ## u  
-    ## o  
-    ## |  
-    ## i  
-    ## e  
-    ## |  
-    ## o  
-    ## u  
-    ## |  
-    ## e  
-    ## i  
-    ## |  
-    ## o  
-    ## u  
-    ## |  
-    ## u  
-    ## o  
-    ## |  
-    ## i
-
 -----
 
 # Word options
 
-## AT
+## CG
 
 The pattern is: ie
 
@@ -225,17 +88,17 @@ pepper, perfect, pledge, prefer, premises, presence, present, pressed, prevent,
 physician, pick, pill, pitch, pixel, print, 
 quick, quilt, quit, 
 reflect, refresh, resident, respect, recipient, revisions, rich,ridge, ring, risk, river, 
-said, shift, sick, silk, since, sing, sink, sitting, skill, skin, slip, specific, segment, 
+said, shift, sick, silk, since, sing, sink, sitting, skill, skin, slip, specific, segment,
 select, selective, sense, sentence, settle, shelter, shepherd, spirit, split, strip, 
 swift, swim, swimming, swing, switching, 
 temple, tender,terrace, terrible, tested, thick, thin, thing, think, thinking, this, trip, twin, 
-velvet, vessel, viewer, victim, visit, visited, 
+velvet, vessel, viewer, victim, visit, visited, vivid, 
 weather, wellness, whenever, wherever, whether, which, will,willing, wind, wing, 
-wings, wins, wish,with, within, wrist
+wings, wins, wish,with, within, wrist, 
 
 -----
 
-## CG
+## AT
 
 The pattern is: ou
 
@@ -243,24 +106,24 @@ Words include:
 
 above, adoption, alone, along, anonymous, arbor, armor, arrow, avoid, abuse, acute, aluminum, argue, 
 balloon, blood, bloom, board, boats, bones, bonus, books, boost, boots, beautiful, blue,
-bored, borough, bottom, broad, broke, brook, 
-cargo, chose, clock, clone, close, cloth, coast, codes, colour, comfort, common, 
-composed, compound, crude, cubed, curious, conscious, console, control, coral, cover, 
-doors, drove, doubt, drums, drunk,
-emotional, enjoy, enormous, float, flood, floor, flows, focal, focus, 
-folks, follow, force, forge, forgot, forms, forth, forum, found, frost, fluid, fruit, future, 
+bored, borough, bottom, broad, broken, brook, button, boreal,
+cargo, chose, clock, clone, close, close to, cloth, clove, coast, codes, colour, comfort, common, 
+corporeous, cosmos, cormorant, composed, compound, crude, cubed, curious, conscious, console, control, coral, cover, 
+diode, doors, drove, doubt, drums, drunk, dove, dome, drone,
+emotional, enjoy, enormous, float, flood, floor, flows, focal, focus, footnotes, forego,
+folks, follow, force, forge, forgot, forlorn, forms, forth, forum, found, frost, fluid, fruit, future, 
 ghost, globe, glorious, goals, gorgeous, gross, grove, grown, grows, group, 
 holds, holes, hollow, homes, honor, hoped, horizon, hormone, horror, horse, hosts, humor,
 joins, joint, jokes, juice,  known, knows, loads, loans, local, location,
-logos, loved, loves, lower, modes, moral, moreover, motion, motor, mouth, mutual,
-noble, nobody, nodes, noise, notes, notion, numerous, 
-occur, ought, outer, obvious, occur, ocean, offer, offshore, often, older, olive, 
-ongoing, opens, opposed, order, organ, other, ought, outdoors, outer, overcome, ozone,
-phone, photo, poems, point, poison, portion, posts, probe, promote, propose, pound, pursue,
-quote, ratio, roads, robot, rolls, roman, rooms, roots, roses, rough, rover, royal, rouge, ruled,
-scope, score,shock, shoes, shoot, shore, short, shown, slope, smoke, smooth,
-solar, solution, solve, someone, songs, souls, spoke, sponsors, stone, 
-store, storm, story, sword, tattoo, throng, thorough, those, throw, tomorrow, tooth, touch, true, 
-union, unusual, usual, vocal, whole, woods, would, wound, wrote, zones
-
-
+logos, loved, loves, low, lower, lore, lobed,
+modes, moral, moreover, motion, mote, motor, more, monotone, mouth, mutual, molecule, momento,
+noble, nobody, nodes, north, noise, note, notes, notion, numerous, 
+oar, oarstroke, occur, ought, outer, obvious, occur, ocean, odor, offer, offshore, often, older, olive, otiose,  oppose, oriole, 
+ongoing, opens, opposed, order, organ, other, ought, outdoors, outer, over, overcome, ozone,
+phone, photo, poems, point, poison, pool, porous, pole, portion, posts, probe, promote, propose, pound, pursue, propose, provoke, purpose, pose, provoke, pour,
+quote, ratio, roads, robot, rolls, roman, rooms, roots, rope, rote, rose, repose, rope, robe, revoke, rove, roam, roses, rough, rover, royal, rouge, ruled,
+scope, score,shock, shoes, shoot, shore, short, shown, shore, shorebirds, stroke, slope, smoke, smooth, solar, solution, solve, some, someone, songs, souls, spoke, sponsors, stone, spore, smoke, sorrow, slow, slope, solemn, shone, short, stroke, snow, sober, soak, spoke, succor, suppose, sorosis, store, storm, story, strove, sword, score,
+tattoo, throng, thorough, those, throw, tomorrow, tooth, touch, true, those, thorn, throne,
+union, unusual, usual, ungovernable, unwoven,
+vocal, volume, vowel, 
+wallow, whole, worn, woke, woods, would, wound, wrote, zones
