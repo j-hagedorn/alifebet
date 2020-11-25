@@ -1,11 +1,6 @@
 ``` r
-searches <- list()
 searches$breath_genes <-
-  get_genes(
-    go_ids = c(
-      `neurological control of breathing` = "GO:0002087"
-    )
-  )
+  get_genes(go_ids = c(`neurological control of breathing` = "GO:0002087"))
 ```
 
 Teashirt homolog 3 (TSHZ3) Transcriptional regulator involved in
